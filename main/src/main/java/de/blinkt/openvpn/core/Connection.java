@@ -6,11 +6,21 @@
 package de.blinkt.openvpn.core;
 
 import android.text.TextUtils;
+import android.util.Log;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.Serializable;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.io.IOException;
+import java.util.regex.Pattern;
 import java.util.Locale;
 
 public class Connection implements Serializable, Cloneable {
+    public String mDynamicAddress = "";
+    public boolean mDynamicAddressSwitch = false;
     public String mServerName = "openvpn.example.com";
     public String mServerPort = "1194";
     public boolean mUseUdp = true;
@@ -38,13 +48,11 @@ public class Connection implements Serializable, Cloneable {
 
 
     public String getConnectionBlock(boolean isOpenVPN3) {
+        String remoteAddress = getDynamicRemote();
         String cfg = "";
 
         // Server Address
-        cfg += "remote ";
-        cfg += mServerName;
-        cfg += " ";
-        cfg += mServerPort;
+        cfg += "remote " + remoteAddress;
         if (mUseUdp)
             cfg += " udp\n";
         else
@@ -92,5 +100,35 @@ public class Connection implements Serializable, Cloneable {
             return CONNECTION_DEFAULT_TIMEOUT;
         else
             return mConnectTimeout;
+    }
+
+    private String getDynamicRemote() {
+        if (!mDynamicAddressSwitch) {
+            return mServerName + " " + mServerPort;
+        }
+        try {
+            URL url = new URL(mDynamicAddress);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setConnectTimeout(3000);
+            conn.setReadTimeout(3000);
+            int resCode = conn.getResponseCode();
+            if (resCode != HttpURLConnection.HTTP_OK) {
+                return mServerName + " " + mServerPort;
+            }
+            InputStream inputStream = conn.getInputStream();
+            ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
+            byte[] bytes = new byte[1024];
+            int length = 0;
+            while ((length = inputStream.read(bytes)) != -1) {
+                arrayOutputStream.write(bytes, 0, length);
+                arrayOutputStream.flush();
+            }
+            String res = arrayOutputStream.toString();
+            Log.d("dynamic address", "response: " + res);
+            return res;
+        } catch (IOException e) {
+            Log.e("dynamic address", "request error: " + e.toString());
+            return mServerName + " " + mServerPort;
+        }
     }
 }

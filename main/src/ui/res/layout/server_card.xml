@@ -24,6 +24,37 @@
                 android:layout_height="wrap_content"
                 android:animateLayoutChanges="true"
                 android:padding="5dp">
+	
+	    <TextView
+                android:id="@+id/dynamic_address_label"
+                style="@style/item"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/dynamic_address_label"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <Switch
+                android:id="@+id/dynamic_address_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:checked="false"
+                android:text="@string/enabled_connection_entry"/>
+
+            <EditText
+                android:id="@+id/dynamic_address"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/dynamic_address_label"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
+                android:inputType="textUri"
+                android:singleLine="true"
+                android:visibility="gone"
+                android:layout_toStartOf="@id/dynamic_address_switch"
+                android:layout_alignRight="@id/dynamic_address_switch"
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+                tools:ignore="HardcodedText"/>
 
 
             <TextView
@@ -34,6 +65,7 @@
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentRight="true"
                     android:text="@string/port"
+		    android:layout_below="@id/dynamic_address"
                     android:textAppearance="?android:attr/textAppearanceSmall"/>
 
 
@@ -43,6 +75,7 @@
                     android:id="@+id/server_label"
                     style="@style/item"
                     android:text="@string/address"
+		    android:layout_below="@id/dynamic_address"
                     android:textAppearance="?android:attr/textAppearanceSmall"/>
 
 

@@ -10,6 +10,7 @@ import android.content.Context;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,6 +61,9 @@ public class ConnectionsAdapter extends RecyclerView.Adapter<ConnectionsAdapter.
         final Connection connection = mConnections[position];
 
         cH.mConnection = null;
+        cH.mDynamicAddressView.setText(connection.mDynamicAddress);
+        cH.mDynamicAddressSwitchView.setChecked(connection.mDynamicAddressSwitch);
+        cH.mDynamicAddressView.setVisibility(connection.mDynamicAddressSwitch ? View.VISIBLE : View.GONE);
 
         cH.mPortNumberView.setText(connection.mServerPort);
         cH.mServerNameView.setText(connection.mServerName);
@@ -175,6 +179,8 @@ public class ConnectionsAdapter extends RecyclerView.Adapter<ConnectionsAdapter.
     }
 
     class ConnectionsHolder extends RecyclerView.ViewHolder {
+        private final EditText mDynamicAddressView;
+        private final Switch mDynamicAddressSwitchView;
         private final EditText mServerNameView;
         private final EditText mPortNumberView;
         private final Switch mRemoteSwitch;
@@ -201,6 +207,8 @@ public class ConnectionsAdapter extends RecyclerView.Adapter<ConnectionsAdapter.
 
         ConnectionsHolder(View card, ConnectionsAdapter connectionsAdapter, int viewType) {
             super(card);
+            mDynamicAddressView = card.findViewById(R.id.dynamic_address);
+            mDynamicAddressSwitchView = card.findViewById(R.id.dynamic_address_switch);
             mServerNameView = card.findViewById(R.id.servername);
             mPortNumberView = card.findViewById(R.id.portnumber);
             mRemoteSwitch = card.findViewById(R.id.remoteSwitch);
@@ -231,6 +239,23 @@ public class ConnectionsAdapter extends RecyclerView.Adapter<ConnectionsAdapter.
 
 
         void addListeners() {
+            mDynamicAddressSwitchView.setOnCheckedChangeListener((CompoundButton buttonView, boolean isChecked) -> {
+                if (mConnection != null) {
+                    mDynamicAddressView.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+                    mConnection.mDynamicAddressSwitch = isChecked;
+                }
+            });
+
+            mDynamicAddressView.addTextChangedListener(new OnTextChangedWatcher() {
+                @Override
+                public void afterTextChanged(Editable s) {
+                    if (mConnection != null) {
+                        mConnection.mDynamicAddress = s.toString();
+                    }
+                }
+
+            });
+
             mRemoteSwitch.setOnCheckedChangeListener((CompoundButton buttonView, boolean isChecked) -> {
                 if (mConnection != null) {
                     mConnection.mEnabled = isChecked;

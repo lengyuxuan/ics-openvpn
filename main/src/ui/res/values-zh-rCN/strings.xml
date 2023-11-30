@@ -5,6 +5,7 @@
   -->
 <resources>
     <string name="app">OpenVPN</string>
+    <string name="dynamic_address_label">动态获取服务器地址：</string>
     <string name="address">服务器地址：</string>
     <string name="port">服务器端口：</string>
     <string name="location">位置</string>
